@@ -3,57 +3,75 @@ pub mod models;
 
 #[macro_use]
 extern crate diesel;
+#[macro_use]
+extern crate serde_derive;
 extern crate dotenv;
 extern crate actix_web;
 extern crate env_logger;
-#[macro_use]
-extern crate tera;
 
-use std::collections::HashMap;
 use diesel::pg::PgConnection;
 use diesel::r2d2::{self, ConnectionManager};
-use dotenv::dotenv;
-use std::{env, io};
-use actix_web::{web, App, HttpServer, middleware, HttpResponse, Error};
 use diesel::prelude::*;
+use std::{env, io};
+use actix_web::{web, Error as ActixError,  App, HttpServer, HttpResponse, middleware};
+use futures::Future;
+use std::sync::{Arc, Mutex};
+use dotenv::dotenv;
 
 type Pool = r2d2::Pool<ConnectionManager<PgConnection>>;
 
+#[derive(Debug, Serialize, Deserialize)]
+struct User {
+    name: String,
+}
+
+struct AppData {
+    user_counter: Arc<Mutex<u32>>,
+    pool: Pool,
+}
+
 fn main() -> io::Result<()> {
-    dotenv().ok();
     std::env::set_var("RUST_LOG", "actix_web=info");
     env_logger::init();
+    dotenv().ok();    
     let manager = ConnectionManager::<PgConnection>::new(env::var("DATABASE_URL").expect("DATABASE_URL must be set"));
     let pool = r2d2::Pool::builder()
         .build(manager)
         .expect("Could not create pool.");
+
     HttpServer::new(move || {
-        let tera = compile_templates!(concat!(env!("CARGO_MANIFEST_DIR"), "/templates/**/*"));
-        App::new()
-            .data(pool.clone())
-            .data(tera)
-            .service(web::resource("/").route(web::get().to(index)))
-            .wrap(middleware::Logger::default())
+     App::new()
+        .data(AppData {
+            pool: pool.clone(),
+            user_counter: Arc::new(Mutex::new(0))
         })
-    .bind("127.0.0.1:8080")?
-    .run()
+        .wrap(middleware::Logger::default())
+        .service(web::resource("/login").route(web::post().to_async(add_user)))
+        })
+        .bind("127.0.0.1:8080")?
+        .run()
 }
 
-fn index(query: web::Query<HashMap<String, String>>, pool: web::Data<Pool>, tmpl: web::Data<tera::Tera>) -> Result<HttpResponse, Error> {
-    let s = if let Some(name) = query.get("name") {
-        use self::schema::users::dsl::*;
-        let mut ctx = tera::Context::new();
+fn add_user(item: web::Json<User>, data: web::Data<AppData>) -> impl Future<Item = HttpResponse, Error = ActixError> {
+    web::block(move || insert_user(item.into_inner().name, &data.pool, &data.user_counter)).then(|res| match res {
+        Ok(user) => Ok(HttpResponse::Ok().json(user)),
+        Err(_) => Ok(HttpResponse::InternalServerError().into()),
+    })
+}
 
-    } else {
-        templ.render("index.html", &tera::Context.new()).map_err(|_| error::ErrorInternalServiceError("Template Error"))?
-    }
-    let connection  = pool.get().unwrap();
-    let query =  users.select(usernames)
-        .filter(username.eq(info.into_inner()))
-        .load::<String>(&connection).unwrap();
-   if query.len() == 1 {
-       
-   } else {
-        HttpResponse::InternalServerError().json("error")
-   }
+fn insert_user(nm: String, pool: &Pool, user_counter: &Arc<Mutex<u32>> ) -> Result<models::User, diesel::result::Error> { 
+    println!{"Adding {}", nm.as_str()};
+    use self::schema::users::dsl::*;
+    let mut user_counter = user_counter.lock().unwrap();
+    *user_counter += 1;
+    let new_user = models::NewUser {
+        id: *user_counter as i32,
+        username: nm.as_str(),
+    };
+    let conn: &PgConnection = &pool.get().unwrap();
+
+    diesel::insert_into(users).values(&new_user).execute(conn)?;
+
+    let mut items = users.filter(id.eq(&id)).load::<models::User>(conn)?;
+    Ok(items.pop().unwrap())    
 }
