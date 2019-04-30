@@ -6,7 +6,7 @@ pub struct User {
     pub username: String,
 }
 
-#[derive(Insertable)]
+#[derive(Insertable, Debug)]
 #[table_name = "users"]
 pub struct NewUser<'a> {
     pub id: i32,

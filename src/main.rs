@@ -15,7 +15,6 @@ use diesel::prelude::*;
 use std::{env, io};
 use actix_web::{web, Error as ActixError,  App, HttpServer, HttpResponse, middleware};
 use futures::Future;
-use std::sync::{Arc, Mutex};
 use dotenv::dotenv;
 
 type Pool = r2d2::Pool<ConnectionManager<PgConnection>>;
@@ -26,7 +25,6 @@ struct User {
 }
 
 struct AppData {
-    user_counter: Arc<Mutex<u32>>,
     pool: Pool,
 }
 
@@ -42,8 +40,7 @@ fn main() -> io::Result<()> {
     HttpServer::new(move || {
      App::new()
         .data(AppData {
-            pool: pool.clone(),
-            user_counter: Arc::new(Mutex::new(0))
+            pool: pool.clone()
         })
         .wrap(middleware::Logger::default())
         .service(web::resource("/login").route(web::post().to_async(add_user)))
@@ -53,25 +50,20 @@ fn main() -> io::Result<()> {
 }
 
 fn add_user(item: web::Json<User>, data: web::Data<AppData>) -> impl Future<Item = HttpResponse, Error = ActixError> {
-    web::block(move || insert_user(item.into_inner().name, &data.pool, &data.user_counter)).then(|res| match res {
+    web::block(move || insert_user(item.into_inner().name, &data.pool)).then(|res| match res {
         Ok(user) => Ok(HttpResponse::Ok().json(user)),
-        Err(_) => Ok(HttpResponse::InternalServerError().into()),
+        Err(_) => {
+            println!("here");
+            Ok(HttpResponse::InternalServerError().into())}
+        ,
     })
 }
 
-fn insert_user(nm: String, pool: &Pool, user_counter: &Arc<Mutex<u32>> ) -> Result<models::User, diesel::result::Error> { 
-    println!{"Adding {}", nm.as_str()};
+fn insert_user(nm: String, pool: &Pool) -> Result<models::User, diesel::result::Error> { 
+    println!("Adding {}", nm.as_str());
     use self::schema::users::dsl::*;
-    let mut user_counter = user_counter.lock().unwrap();
-    *user_counter += 1;
-    let new_user = models::NewUser {
-        id: *user_counter as i32,
-        username: nm.as_str(),
-    };
     let conn: &PgConnection = &pool.get().unwrap();
-
-    diesel::insert_into(users).values(&new_user).execute(conn)?;
-
-    let mut items = users.filter(id.eq(&id)).load::<models::User>(conn)?;
+    diesel::insert_into(users).values(username.eq(nm.clone())).execute(conn)?;
+    let mut items = users.filter(username.eq(nm)).load::<models::User>(conn)?;
     Ok(items.pop().unwrap())    
 }
