@@ -1,5 +1,5 @@
-/target
-**/*.rs.bk
+/consequences_backend/target
+/consequences_backend/**/*.rs.bk
 .env
 .idea
 

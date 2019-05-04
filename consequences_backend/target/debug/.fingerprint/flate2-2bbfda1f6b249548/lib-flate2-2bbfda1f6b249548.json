@@ -1,1 +1,0 @@
-{"rustc":16808136130384033570,"features":"[\"miniz-sys\"]","target":10301902716942155918,"profile":9935990280773120926,"path":15129291564558132631,"deps":[["crc32fast v1.2.0","crc32fast",172811714208328570],["libc v0.2.51","libc",4310059932281772243],["miniz-sys v0.1.11","miniz_sys",17974561583932987580]],"local":[{"Precalculated":"1.0.7"}],"rustflags":[],"edition":"Edition2015"}
