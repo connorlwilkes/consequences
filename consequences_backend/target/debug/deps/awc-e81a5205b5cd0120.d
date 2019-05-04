@@ -1,0 +1,12 @@
+/Users/connorwilkes/projects/consequences/target/debug/deps/libawc-e81a5205b5cd0120.rlib: /Users/connorwilkes/.cargo/registry/src/github.com-1ecc6299db9ec823/awc-0.1.0-alpha.4/src/lib.rs /Users/connorwilkes/.cargo/registry/src/github.com-1ecc6299db9ec823/awc-0.1.0-alpha.4/src/builder.rs /Users/connorwilkes/.cargo/registry/src/github.com-1ecc6299db9ec823/awc-0.1.0-alpha.4/src/connect.rs /Users/connorwilkes/.cargo/registry/src/github.com-1ecc6299db9ec823/awc-0.1.0-alpha.4/src/error.rs /Users/connorwilkes/.cargo/registry/src/github.com-1ecc6299db9ec823/awc-0.1.0-alpha.4/src/request.rs /Users/connorwilkes/.cargo/registry/src/github.com-1ecc6299db9ec823/awc-0.1.0-alpha.4/src/response.rs /Users/connorwilkes/.cargo/registry/src/github.com-1ecc6299db9ec823/awc-0.1.0-alpha.4/src/test.rs /Users/connorwilkes/.cargo/registry/src/github.com-1ecc6299db9ec823/awc-0.1.0-alpha.4/src/ws.rs
+
+/Users/connorwilkes/projects/consequences/target/debug/deps/awc-e81a5205b5cd0120.d: /Users/connorwilkes/.cargo/registry/src/github.com-1ecc6299db9ec823/awc-0.1.0-alpha.4/src/lib.rs /Users/connorwilkes/.cargo/registry/src/github.com-1ecc6299db9ec823/awc-0.1.0-alpha.4/src/builder.rs /Users/connorwilkes/.cargo/registry/src/github.com-1ecc6299db9ec823/awc-0.1.0-alpha.4/src/connect.rs /Users/connorwilkes/.cargo/registry/src/github.com-1ecc6299db9ec823/awc-0.1.0-alpha.4/src/error.rs /Users/connorwilkes/.cargo/registry/src/github.com-1ecc6299db9ec823/awc-0.1.0-alpha.4/src/request.rs /Users/connorwilkes/.cargo/registry/src/github.com-1ecc6299db9ec823/awc-0.1.0-alpha.4/src/response.rs /Users/connorwilkes/.cargo/registry/src/github.com-1ecc6299db9ec823/awc-0.1.0-alpha.4/src/test.rs /Users/connorwilkes/.cargo/registry/src/github.com-1ecc6299db9ec823/awc-0.1.0-alpha.4/src/ws.rs
+
+/Users/connorwilkes/.cargo/registry/src/github.com-1ecc6299db9ec823/awc-0.1.0-alpha.4/src/lib.rs:
+/Users/connorwilkes/.cargo/registry/src/github.com-1ecc6299db9ec823/awc-0.1.0-alpha.4/src/builder.rs:
+/Users/connorwilkes/.cargo/registry/src/github.com-1ecc6299db9ec823/awc-0.1.0-alpha.4/src/connect.rs:
+/Users/connorwilkes/.cargo/registry/src/github.com-1ecc6299db9ec823/awc-0.1.0-alpha.4/src/error.rs:
+/Users/connorwilkes/.cargo/registry/src/github.com-1ecc6299db9ec823/awc-0.1.0-alpha.4/src/request.rs:
+/Users/connorwilkes/.cargo/registry/src/github.com-1ecc6299db9ec823/awc-0.1.0-alpha.4/src/response.rs:
+/Users/connorwilkes/.cargo/registry/src/github.com-1ecc6299db9ec823/awc-0.1.0-alpha.4/src/test.rs:
+/Users/connorwilkes/.cargo/registry/src/github.com-1ecc6299db9ec823/awc-0.1.0-alpha.4/src/ws.rs:
