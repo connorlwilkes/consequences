@@ -1,5 +1,7 @@
-import React, { Component } from 'react';
-
+import React, { Component, Fragment } from 'react';
+import SubmitButton from '../components/submitButton';
+import { TextField } from '@material-ui/core';
+import Button from '@material-ui/core/Button';
 export default class LoginForm extends Component {
 
     constructor(props) {
@@ -15,19 +17,21 @@ export default class LoginForm extends Component {
 
     render () {
         return (
-            <form onSubmit={this.loginRequest}>
-                <label>
-                    Name:
-                    <input type="text" value={this.state.username} onChange={this.handleChange} />
-                </label>
-                <input type="submit" value="Submit" />
-          </form>
+                <React.Fragment>
+                    <form onSubmit={this.loginRequest}>
+                        <TextField label="Username" onChange={this.handleChange} />
+                        <Button variant="contained" type="submit" color="primary"> 
+                            Submit
+                        </Button>
+                    </form>
+                </React.Fragment>
           );
     }
 
     loginRequest(event) {
         console.log(this.state.username);
         fetch("http://localhost:8080/login", {
+            credentials: "include",
             method: 'POST',
             body: JSON.stringify({name: this.state.username}),
             headers: {

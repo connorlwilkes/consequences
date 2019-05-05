@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
-import Routes from "./Routes";
+import ReactDom from 'react-dom';
+import Login from './containers/Login';
+import SubmitButton from './components/submitButton';
 
-class App extends Component {
+export default class App extends Component {
 
     constructor(props) {
         super(props);
@@ -10,23 +12,11 @@ class App extends Component {
         };
     }
 
-    userHasAuthenticated() {
-        this.setState({isAuthenticated: true});
-    }
-
     render () {
-        const childProps = {
-            isAuthenticated: this.state.isAuthenticated,
-            userHasAuthenticated: this.userHasAuthenticated
-        };
-
         return (
-            <div className="App container">
-                <Routes childProps={childProps}/>
-            </div>
+            <React.Fragment>
+                <Login />
+            </React.Fragment>
           );
     }
 }
-
-
-export default App;

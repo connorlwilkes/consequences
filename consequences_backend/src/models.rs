@@ -9,6 +9,6 @@ pub struct User {
 #[derive(Insertable, Debug)]
 #[table_name = "users"]
 pub struct NewUser<'a> {
-    pub id: i32,
+    pub id: Option<i32>,
     pub username: &'a str,
 }
