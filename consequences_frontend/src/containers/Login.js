@@ -39,7 +39,7 @@ export default class LoginForm extends Component {
             }
         }).then(res => res.json())
         .then(response => console.log('Success:', JSON.stringify(response)))
-        .catch(error => console.log('Error:', error));
+        .catch(error => console.log('Error:', error))
         event.preventDefault();
     }
 
