@@ -1,11 +1,11 @@
-use crate::models;
-use crate::app_data::{AppData, Pool};
+use super::models;
+use super::app_data::{AppData, Pool};
 
 use actix_web::middleware::identity::Identity;
-use actix_web::{web, Error as ActixError, HttpRequest, HttpResponse};
+use actix_web::{web, Error as ActixError, HttpResponse};
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
-use futures::Future;
+use futures::{Future, future::ok};
 
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -13,11 +13,15 @@ pub struct User {
     name: String,
 }
 
-pub fn login(item: web::Json<User>, data: web::Data<AppData>, req: HttpRequest, id: Identity) -> impl Future<Item=HttpResponse, Error=ActixError> {
-    println!("{:?}", req);
-    id.forget();
-    println!("{}", format!("Hello {}", id.identity().unwrap_or("Anonymous".to_owned())));
-    web::block(move || insert_user(item.into_inner().name, data.pool())).then(move |res| match res {
+pub fn login(item: web::Json<User>, data: web::Data<AppData>, id: Identity) -> Box<dyn Future<Item=HttpResponse, Error=ActixError>> {
+    match id.identity() {
+        Some(id) => Box::new(ok(HttpResponse::Conflict().json(&id))),
+        None => Box::new(login_helper(item.into_inner().name, data.pool().clone(), id)),
+    }
+}
+
+fn login_helper(name: String, pool: Pool, id: Identity) -> impl Future<Item=HttpResponse, Error=ActixError> {
+    web::block(move || insert_user(name, &pool)).then(move |res| match res {
         Ok(result) => {
             id.remember(String::from(result.user.username.as_str()));
             match result.already_present {
@@ -32,13 +36,14 @@ pub fn login(item: web::Json<User>, data: web::Data<AppData>, req: HttpRequest, 
     })
 }
 
+
 struct UserSelectResult {
     user: models::User,
     already_present: bool,
 }
 
 fn insert_user(nm: String, pool: &Pool) -> Result<UserSelectResult, diesel::result::Error> {
-    use crate::schema::users::dsl::*;
+    use super::schema::users::dsl::*;
     let conn: &PgConnection = &pool.get().unwrap();
     let user = models::NewUser {
         username: &nm,

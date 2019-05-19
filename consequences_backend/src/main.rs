@@ -10,12 +10,13 @@ extern crate serde_derive;
 extern crate dotenv;
 extern crate actix_web;
 extern crate env_logger;
+extern crate futures;
 
 use diesel::pg::PgConnection;
 use diesel::r2d2::{self, ConnectionManager};
 use std::{io, env};
-use actix_web::{App, HttpServer, middleware, web, http::header, HttpResponse};
-use actix_web::middleware::identity::{CookieIdentityPolicy, IdentityService, Identity};
+use actix_web::{App, HttpServer, middleware, web, http::header};
+use actix_web::middleware::identity::{CookieIdentityPolicy, IdentityService};
 use dotenv::dotenv;
 use app_data::AppData;
 
@@ -47,13 +48,7 @@ fn main() -> io::Result<()> {
                     .secure(false),
             ))
             .service(web::resource("/login").route(web::post().to_async(login::login)))
-            .service(web::resource("/check").route(web::get().to(check)))
     })
         .bind("127.0.0.1:8080")?
         .run()
 }
-
-fn check(id: Identity) -> HttpResponse {
-    HttpResponse::Ok().body(format!("Hello {}", id.identity().unwrap_or("Anonymous".to_owned())))
-}
-

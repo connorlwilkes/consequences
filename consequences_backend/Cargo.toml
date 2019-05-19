@@ -5,7 +5,7 @@ authors = ["Connor Wilkes <clw762@student.bham.ac.uk>"]
 edition = "2018"
 
 [dependencies]
-actix-web = "1.0.0-alpha.4"
+actix-web = "1.0.0-beta.5"
 diesel = { version = "1.0.0", features = ["postgres", "r2d2"] }
 r2d2 = "0.8.4"
 dotenv = "0.9.0"
