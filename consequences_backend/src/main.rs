@@ -2,6 +2,7 @@ pub mod schema;
 pub mod models;
 pub mod login;
 pub mod app_data;
+pub mod index;
 
 #[macro_use]
 extern crate diesel;
@@ -48,6 +49,7 @@ fn main() -> io::Result<()> {
                     .secure(false),
             ))
             .service(web::resource("/login").route(web::post().to_async(login::login)))
+            .service(web::resource("/").route(web::get().to(index::check)))
     })
         .bind("127.0.0.1:8080")?
         .run()
