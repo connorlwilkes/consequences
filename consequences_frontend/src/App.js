@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
-import ReactDom from 'react-dom';
 import Entry from './containers/Entry';
-import SubmitButton from './components/submitButton';
+import Login from './containers/Login';
 
 export default class App extends Component {
 
@@ -9,15 +8,18 @@ export default class App extends Component {
         super(props);
         this.state= {
             loggedIn: false,
+            name: "test",
         };
     }
 
     render () {
+        var element = <Entry name="test" />
+        // if (!(this.props.loggedIn)) {
+        //     element = <Login />
+        // }
         return (
             <React.Fragment>
-                <Entry
-                    loggedIn={this.state.loggedIn}
-                />
+                {element}
             </React.Fragment>
           );
     }
@@ -32,12 +34,13 @@ export default class App extends Component {
             }
         }).then(res => res.text())
         .then(body => {
-            console.log(body)
             let str = String(body)
             if (str.length > 0) {
-                this.setState({ loggedIn: true })
+                this.setState({ 
+                    loggedIn: true,
+                    name: str,
+                 })
             }
-            console.log(this.state.loggedIn)
         })
         .catch(err => console.log(err))
     }
