@@ -1,5 +1,5 @@
 use super::models;
-use super::app_data::{AppData, Pool};
+use super::appdata::{AppData, DatabasePool};
 
 use actix_web::middleware::identity::Identity;
 use actix_web::{web, Error as ActixError, HttpResponse};
@@ -16,11 +16,11 @@ pub struct User {
 pub fn login(item: web::Json<User>, data: web::Data<AppData>, id: Identity) -> Box<dyn Future<Item=HttpResponse, Error=ActixError>> {
     match id.identity() {
         Some(id) => Box::new(ok(HttpResponse::Conflict().json(&id))),
-        None => Box::new(login_helper(item.into_inner().name, data.pool().clone(), id)),
+        None => Box::new(login_helper(item.into_inner().name, data.database_pool().clone(), id)),
     }
 }
 
-fn login_helper(name: String, pool: Pool, id: Identity) -> impl Future<Item=HttpResponse, Error=ActixError> {
+fn login_helper(name: String, pool: DatabasePool, id: Identity) -> impl Future<Item=HttpResponse, Error=ActixError> {
     web::block(move || insert_user(name, &pool)).then(move |res| match res {
         Ok(result) => {
             id.remember(String::from(result.user.username.as_str()));
@@ -42,7 +42,7 @@ struct UserSelectResult {
     already_present: bool,
 }
 
-fn insert_user(nm: String, pool: &Pool) -> Result<UserSelectResult, diesel::result::Error> {
+fn insert_user(nm: String, pool: &DatabasePool) -> Result<UserSelectResult, diesel::result::Error> {
     use super::schema::users::dsl::*;
     let conn: &PgConnection = &pool.get().unwrap();
     let user = models::NewUser {

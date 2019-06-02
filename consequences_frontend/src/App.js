@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import Entry from './containers/Entry';
+import Index from './containers/Entry';
 import Login from './containers/Login';
 
 export default class App extends Component {
@@ -13,13 +13,9 @@ export default class App extends Component {
     }
 
     render () {
-        var element = <Entry name="test" />
-        // if (!(this.props.loggedIn)) {
-        //     element = <Login />
-        // }
         return (
             <React.Fragment>
-                {element}
+                <Index />
             </React.Fragment>
           );
     }

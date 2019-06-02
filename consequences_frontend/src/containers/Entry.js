@@ -1,16 +1,12 @@
-import React, { Componenet } from 'react';
+import React, { Component } from 'react';
 
-export default class Index extends React.Component {
-
-    constructor(props) {
-        super(props);
-    }
+export default class Index extends Component {
 
     render() {
         return (
             <div>
                 <h2>
-                    Hello {this.props.name.toString()}
+                    Hello
                 </h2>
             </div>
         )
