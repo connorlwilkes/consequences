@@ -4,6 +4,7 @@ pub mod login;
 pub mod appdata;
 pub mod index;
 pub mod game;
+pub mod authentication;
 
 #[macro_use]
 extern crate diesel;

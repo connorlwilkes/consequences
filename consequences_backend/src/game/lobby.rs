@@ -1,35 +1,35 @@
-use self::game::Game;
+use crate::game::game::Game;
 
 static MAX_ROUNDS: u8 = 8;
 
 
-struct Lobby<'a> {
+pub struct Lobby<'a> {
     id: u32,
     name: String,
-    owner: LobbyPlayer,
+    owner: &'a LobbyPlayer,
     players: Vec<&'a LobbyPlayer>,
     round_number: u8,
-    game: Game,
-
+    game: Option<Game>,
 }
 
 #[derive(Debug, Clone)]
-struct LobbyPlayer {
+pub struct LobbyPlayer {
     username: String,
     plays: Vec<String>,
 }
 
-impl Lobby {
+impl<'a> Lobby<'a> {
 
-    pub fn new(id: u32, name: String, owner: LobbyPlayer) -> Lobby {
+    pub fn new(id: u32, name: String, owner: &'a LobbyPlayer) -> Lobby<'a> {
         let mut players = Vec::new();
-        players.push(&owner);
+        players.push(owner);
         Lobby {
             name,
             id,
             owner,
             players,
             round_number: 0,
+            game: None,
         }
     }
 
