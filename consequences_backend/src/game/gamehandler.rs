@@ -10,7 +10,7 @@ pub struct LobbyInfo { pub lobby_name: String }
 
 pub fn create_lobby_handler(lobby_info: web::Json<LobbyInfo>, id: Identity, data: web::Data<AppData>) -> HttpResponse {
     // TODO - make this async
-    // I should check here if this is a valid cookie - TODO Write a function to check
+    // TODO Write a function to check if cookie is valid
     match id.identity() {
         Some(user) => create_lobby(lobby_info.into_inner().lobby_name, user, data.redis_pool()),
         _ => HttpResponse::BadRequest().json("Not logged in"),
@@ -32,11 +32,24 @@ fn create_lobby(lobby_name: String, owner: String, redis_pool: &RedisPool) -> Ht
 }
 
 pub fn join_lobby(lobby_info: web::Json<LobbyInfo>, id: Identity, data: web::Data<AppData>) -> HttpResponse {
-    unimplemented!()
+    // TODO - Check if the player is already in another lobby
     // TODO - match on the identity
-    // TODO - check exisistence of lobby
-    // TODO - add user to lobby
-    // TODO - check the number of users in lobby, if max (5) reached - do not allow anymore to join
+    match id.identity() {
+        Some(user) => {
+            let conn = data.redis_pool().get().unwrap();
+            let check_result = conn.exists(&lobby_info.into_inner().lobby_name).unwrap();
+            if check_result {
+                let result: u64 = conn.sadd(&lobby_info.into_inner().lobby_name, user).unwrap();
+                if result == 5 {
+                    //TODO - lobby = full and signal sent to lobby own
+                }
+                HttpResponse::Ok().finish()
+            } else {
+                HttpResponse::NoContent().finish()
+            }
+        },
+        _ => HttpResponse::BadRequest().json("Not logged in"),
+    }
 }
 
 pub fn get_lobbies() {

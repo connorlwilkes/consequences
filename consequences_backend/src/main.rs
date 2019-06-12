@@ -5,6 +5,7 @@ pub mod appdata;
 pub mod index;
 pub mod game;
 pub mod authentication;
+pub mod redis_session;
 
 #[macro_use]
 extern crate diesel;
