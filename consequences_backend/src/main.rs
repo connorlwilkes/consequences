@@ -30,7 +30,7 @@ fn main() -> io::Result<()> {
             .wrap(middleware::Logger::default())
             .wrap(
                 middleware::cors::Cors::new()
-                    .allowed_origin("http://localhost:3000")
+                    .allowed_origin("127.0.0.1:62026")
                     .allowed_methods(vec!["GET", "POST"])
                     .allowed_headers(vec![header::AUTHORIZATION, header::ACCEPT])
                     .allowed_header(header::CONTENT_TYPE)
@@ -44,6 +44,8 @@ fn main() -> io::Result<()> {
             ))
             .service(web::resource("/login").route(web::post().to_async(login::login)))
             .service(web::resource("/create-lobby").route(web::post().to(game::gamehandler::create_lobby_handler)))
+            .service(web::resource("/join-lobby").route(web::post().to(game::gamehandler::join_lobby)))
+            .service(web::resource("/lobby-info").route(web::post().to(game::gamehandler::get_lobby_info)))
             .service(web::resource("/").route(web::get().to(index::check)))
     })
         .bind("127.0.0.1:8080")?

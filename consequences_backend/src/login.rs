@@ -24,7 +24,6 @@ fn login_helper(name: String, pool: DatabasePool, id: Identity, redis_pool: &Red
     web::block(move || insert_user(name, &pool)).then(move |res| match res {
         Ok(result) => {
             id.remember(String::from(result.user.username.as_str()));
-            redis_pool.get().unwrap().
             match result.already_present {
                 // TODO - Seperate signup from login
                 true => Ok(HttpResponse::Ok().json(result.user)),
