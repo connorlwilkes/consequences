@@ -6,6 +6,7 @@ use crate::appdata::AppData;
 use crate::appdata::RedisPool;
 use super::lobby::Lobby;
 use serde::private::ser::constrain;
+use actix_web::web::to;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct LobbyInfo { pub lobby_name: String }
@@ -65,7 +66,9 @@ pub fn start_lobby() {
     // TODO - create a db backend (postgresql) with the game info
 }
 
-pub fn get_lobby_info(lobby_info: web::Json<LobbyInfo>, data: web::Data<AppData>) {
+pub fn get_lobby_info(lobby_info: web::Json<LobbyInfo>, data: web::Data<AppData>) -> HttpResponse {
     let conn = data.redis_pool().get().unwrap();
-    Lobby::get_from_redis(&conn, lobby_info.into_inner().lobby_name);
+    let to_return = web::Json(Lobby::get_from_redis(&conn, lobby_info.into_inner().lobby_name));
+    println!("{:?}", to_return);
+    HttpResponse::Ok().json(to_return.into_inner())
 }

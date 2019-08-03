@@ -1,9 +1,11 @@
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Game {
     turn_number: u8,
     final_result: String,
     turns: Vec<Turn>,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
 struct Turn {
     player: String,
     round: u8,
