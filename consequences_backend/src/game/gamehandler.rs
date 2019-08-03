@@ -26,8 +26,10 @@ fn create_lobby(lobby_name: String, owner: String, redis_pool: &RedisPool) -> Ht
     if check_result {
         HttpResponse::Conflict().json(format!("{} already exists", lobby_name))
     } else {
+        //TODO - Pipeline these commands/Transaction? hmset would help also
         let _result: u64 = redis_connection.sadd(format!("{}:members", &lobby_name), &owner).unwrap();
         let _result: u64 = redis_connection.hset(&lobby_name, "users", format!("{}:members", &lobby_name)).unwrap();
+        let _result: u64 = redis_connection.hset(&lobby_name, "owner", &owner).unwrap();
         let _result: u64 = redis_connection.sadd("lobbies", &lobby_name).unwrap();
         HttpResponse::Created().finish()
     }
