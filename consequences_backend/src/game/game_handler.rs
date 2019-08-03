@@ -14,6 +14,7 @@ pub struct LobbyInfo { pub lobby_name: String }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GameInfo {
+    pub lobby_name: String,
     pub game_name: String,
     pub response: String,
 }
@@ -85,7 +86,7 @@ pub fn start_game(lobby_info: web::Json<LobbyInfo>, data: web::Data<AppData>, id
         let redis_connection = redis_pool.get().unwrap();
         let game_name = format!("{}:game", &lobby_name);
         let _result: u64 = redis_connection.hset(&lobby_name, "game", &game_name).unwrap();
-        let _result: u64 = redis_connection.hset(&game_name, "round", "0").unwrap();
+        let _result: u64 = redis_connection.hset(&game_name, "round", "1").unwrap();
         for i in 1..=lobby.players.len() {
             let _result: u64 = redis_connection.hset(&game_name, format!("consequence{}", i), "").unwrap();
         }
@@ -97,8 +98,49 @@ pub fn start_game(lobby_info: web::Json<LobbyInfo>, data: web::Data<AppData>, id
     }
 }
 
-//pub fn store_round_result(game_info: web::Json<GameInfo>, data: web::Data<AppData>, id: Identity, redis_pool: &RedisPool) -> HttpResponse {
-//    let conn = data.redis_pool().get().unwrap();
-//    //TODO: If already submitted, ignore
-//
-//}
+#[derive(Debug, Serialize, Deserialize)]
+pub struct GameInfoResponse {
+    pub lobby_name: String,
+    pub stories: Option<Vec<String>>,
+    pub done: bool,
+}
+
+pub fn process_round_result(game_info: web::Json<GameInfo>, data: web::Data<AppData>, id: Identity, redis_pool: &RedisPool) -> HttpResponse {
+    let conn = data.redis_pool().get().unwrap();
+    let message = game_info.into_inner().response;
+    let lobby_name = game_info.into_inner().lobby_name;
+    let game_name = format!("{}:game", &lobby_name);
+    let player_number: u8 = conn.zscore(id.identity().unwrap());
+    let round_number: u8 = conn.hget(&game_name, "round");
+    let player_count: u8 = conn.hget(&lobby_name, "player_count");
+    let mut to_return = GameInfoResponse {
+        lobby_name: lobby_name.clone(),
+        stories: None,
+        done: false,
+    };
+    let temp = (player_number - 1) + round_number;
+    match temp % player_count {
+        0 => {
+            let mut consequence: String = conn.hget(&game_name, format!("consequence{}", player_number)).unwrap();
+            consequence.push_str(message.as_str());
+            let _result: u8 = conn.hset(&game_name, format!("consequence{}", player_number), consequence).unwrap();
+        },
+        _ => {
+            let nmbr = temp % player_count;
+            let mut consequence: String = conn.hget(&game_name, format!("consequence{}", nmbr)).unwrap();
+            consequence.push_str(message.as_str());
+            let _result: u8 = conn.hset(&game_name, format!("consequence{}", nmbr), consequence).unwrap();
+        }
+    }
+    if round_number == 8 {
+        let lobby = Lobby::get_from_redis(&conn, lobby_name.clone());
+        let mut stories = Vec::new();
+        for i in 1..=lobby.players.len() {
+            let consequence: String = conn.hget(&game_name, format!("consequence{}", player_number)).unwrap();
+            stories.push(consequence);
+        }
+        to_return.stories = Some(stories);
+        to_return.done = true;
+    }
+    HttpResponse::Ok().json(web::Json(to_return).into_inner())
+}
