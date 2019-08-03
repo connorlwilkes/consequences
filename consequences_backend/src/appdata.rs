@@ -7,7 +7,7 @@ use dotenv::dotenv;
 pub type DatabasePool = r2d2::Pool<ConnectionManager<PgConnection>>;
 pub type RedisPool = r2d2::Pool<RedisConnectionManager>;
 
-pub struct AppData {
+pub struct  AppData {
     db_pool: DatabasePool,
     redis_pool: RedisPool,
 }
@@ -20,8 +20,8 @@ impl AppData {
         let db_pool = r2d2::Pool::builder()
             .build(manager)
             .expect("Could not create pool.");
-//        let manager = RedisConnectionManager::new(env::var("REDIS_URL").expect("REDIS_URL must be set")).unwrap();
-        let manager = RedisConnectionManager::new("redis://localhost:6379").unwrap();
+        let manager = RedisConnectionManager::new(env::var("REDIS_URL").expect("REDIS_URL must be set").as_str()).unwrap();
+//        let manager = RedisConnectionManager::new("redis://localhost:6379").unwrap();
         let redis_pool = r2d2::Pool::builder()
             .build(manager)
             .unwrap();
