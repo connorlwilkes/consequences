@@ -1,7 +1,7 @@
 use super::models;
 use super::appdata::{AppData, DatabasePool, RedisPool};
 
-use actix_web::middleware::identity::Identity;
+use actix_identity::Identity;
 use actix_web::{web, Error as ActixError, HttpResponse};
 use diesel::pg::PgConnection;
 use diesel::prelude::*;

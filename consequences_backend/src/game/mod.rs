@@ -1,3 +1,2 @@
-pub mod lobby;
-pub mod gamehandler;
-pub mod game;
+pub mod game_logic;
+pub mod game_handler;

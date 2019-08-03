@@ -1,4 +1,3 @@
-use crate::game::game::Game;
 use r2d2_redis::RedisConnectionManager;
 use r2d2::PooledConnection;
 use itertools::{Tuples, Itertools};
@@ -11,15 +10,14 @@ type RedisConnection = PooledConnection<RedisConnectionManager>;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Lobby {
-    name: String,
-    owner: String,
-    players: Vec<String>,
-    round_number: u8,
-    game: Option<Game>,
+    pub name: String,
+    pub owner: String,
+    pub players: Vec<String>,
+    pub round_number: u8,
+    pub game: Option<Game>,
 }
 
 impl Lobby {
-
     pub fn new(name: String, owner: String) -> Lobby {
         let mut players = Vec::new();
         players.push(owner.clone());
@@ -38,15 +36,15 @@ impl Lobby {
         let mut owner = String::new();
         let mut players = Vec::new();
         for (field, value) in fields.into_iter().tuples() {
-                match field {
-                    ref field if field.contains("users") => {
-                        players = conn.smembers(value).unwrap();
-                    }
-                    ref field if field.contains("owner") => {
-                        owner = value
-                    }
-                    _ => {}
+            match field {
+                ref field if field.contains("users") => {
+                    players = conn.smembers(value).unwrap();
                 }
+                ref field if field.contains("owner") => {
+                    owner = value
+                }
+                _ => {}
+            }
         }
         Lobby {
             name,
@@ -56,13 +54,18 @@ impl Lobby {
             game: None,
         }
     }
+}
 
-    pub fn add_to_redis(&self, fields_to_add: Vec<String>, ) {
-        unimplemented!()
-//        for &field in fields_to_add {
-//            match field {
-//
-//            }
-//        }
-    }
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Game {
+    turn_number: u8,
+    final_result: String,
+    turns: Vec<Turn>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct Turn {
+    player: String,
+    round: u8,
+    answer: String,
 }
